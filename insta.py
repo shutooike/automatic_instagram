@@ -17,7 +17,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
-# url hashtag INFO
+# url INFO
 instagramURL = "https://www.instagram.com" #インスタグラム
 loginURL = "https://www.instagram.com/accounts/login/" #ログイン
 
