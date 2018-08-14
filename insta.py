@@ -40,13 +40,13 @@ browser.find_element_by_name("username").send_keys(username)
 browser.find_element_by_name("password").send_keys(password,Keys.RETURN)
 
 # hashtag loop
-for hashTagName in hashtagList:
+for hashtagName in hashtagList:
     sleep(3)
     browser.get(instagramURL)
 
 # searching for the hashtag
     browser.implicitly_wait(10)
-    browser.find_element_by_xpath(searchXpath).send_keys("#{}".format(hashTagName))
+    browser.find_element_by_xpath(searchXpath).send_keys("#{}".format(hashtagName))
     sleep(3)
     browser.find_element_by_xpath(searchXpath).send_keys(Keys.RETURN,Keys.RETURN)
 
@@ -57,7 +57,14 @@ for hashTagName in hashtagList:
 # automatic like
     for post in postList:
         post.click()
+        nextCounter = 0
         likedCounter = 0
+
+        while nextCounter < 9: 
+            sleep(2)
+            browser.implicitly_wait(10)
+            browser.find_element_by_css_selector(nextPageSelector).click()
+            nextCounter += 1
 
         while likedCounter < 50:
             try:
@@ -72,9 +79,10 @@ for hashTagName in hashtagList:
         break
 
     totalLikes += likedCounter
+    print("liked {0} posts of #{1}".format(likedCounter,hashtagName))
     continue
 
-print("You liked {} posts".format(totalLikes))
+print("liked {} posts".format(totalLikes))
 sleep(3)
 
 # clean exit
