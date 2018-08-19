@@ -5,28 +5,43 @@ password = ""
 # hashtag INFO
 hashtagList = ["","",""]
 
+# linenotify token INFO
+line_notify_token = ''
+
 # import
+import datetime
+import requests
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
-# url hashtag INFO
+# url INFO
 instagramURL = "https://www.instagram.com"
 loginURL = "https://www.instagram.com/accounts/login/"
+profileURL = "https://www.instagram.com/{}/".format(username)
 
-# define xpaths and selectors
+# defining xpaths and selectors
 likeXpath = '/html/body/div[3]/div/div[2]/div/article/div[2]/section[1]/span[1]/button/span' #いいねボタン
 searchXpath = '//*[@id="react-root"]/section/nav/div[2]/div/div/div[2]/input' #検索
+numberOfFollowersXpath = '//*[@id="react-root"]/section/main/div/header/section/ul/li[2]/a/span'
 nextPageSelector = 'a.coreSpriteRightPaginationArrow' #次へボタン
 postSelector = 'div._9AhH0' #投稿の画像部分のselector
 
-# post list
+# defining list
 postlist = []
+interimReportList = ["\n"]
 
 # total likes
 totalLikes = 0
+
+# defining linenotify
+def linenotify(message):
+    line_notify_api = 'https://notify-api.line.me/api/notify'
+    payload = {'message': message}
+    headers = {'Authorization': 'Bearer ' + line_notify_token}
+    line_notify = requests.post(line_notify_api, data=payload, headers=headers)
 
 # starting a new browser session
 browser = webdriver.Chrome()
@@ -39,15 +54,25 @@ browser.get(loginURL)
 browser.find_element_by_name("username").send_keys(username)
 browser.find_element_by_name("password").send_keys(password,Keys.RETURN)
 
+# getting number of followers
+sleep(3)
+browser.get(profileURL)
+followers = browser.find_element_by_xpath(numberOfFollowersXpath)
+dt_now = datetime.datetime.now()
+followersReport = "You have {} followers at {}".format(followers.text,dt_now)
+message = '{}'.format(followersReport)
+linenotify(message)
+
 # hashtag loop
 for hashtagName in hashtagList:
     sleep(3)
     browser.get(instagramURL)
+    sleep(3)
 
 # searching for the hashtag
     browser.implicitly_wait(10)
     browser.find_element_by_xpath(searchXpath).send_keys("#{}".format(hashtagName))
-    sleep(3)
+    sleep(5)
     browser.find_element_by_xpath(searchXpath).send_keys(Keys.RETURN,Keys.RETURN)
 
 # making a postList
@@ -60,7 +85,7 @@ for hashtagName in hashtagList:
         nextCounter = 0
         likedCounter = 0
 
-        while nextCounter < 9: 
+        while nextCounter < 9:
             sleep(2)
             browser.implicitly_wait(10)
             browser.find_element_by_css_selector(nextPageSelector).click()
@@ -79,10 +104,14 @@ for hashtagName in hashtagList:
         break
 
     totalLikes += likedCounter
-    print("liked {0} posts of #{1}".format(likedCounter,hashtagName))
+    interimReportList.append("liked {} posts of #{}\n".format(likedCounter,hashtagName))
     continue
 
-print("liked {} posts".format(totalLikes))
+# report
+finalReport = "\nliked {} posts".format(totalLikes)
+interimReport = "".join(interimReportList)
+message = '{}'.format(interimReport + finalReport)
+linenotify(message)
 sleep(3)
 
 # clean exit
