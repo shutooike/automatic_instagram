@@ -1,0 +1,7 @@
+{
+    "username"     : "abc",
+    "password"     : "ABC123",
+    "linenotify"   : "abcdefg1234567",
+    "hashtagList"  : ["love","nice","sun"],
+    "time"         : "21:00"
+}
